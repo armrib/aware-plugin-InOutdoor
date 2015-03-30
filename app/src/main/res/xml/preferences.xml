@@ -2,7 +2,14 @@
 <PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
     <CheckBoxPreference
         android:defaultValue="false"
-        android:key="status_plugin_template"
+        android:key="status_plugin_inoutdoor"
         android:persistent="true"
         android:summary="Activate/Deactivate template plugin" />
+    <EditTextPreference
+        android:defaultValue="5"
+        android:key="frequency_inoutdoor"
+        android:persistent="true"
+        android:summary="5 minutes"
+        android:title="How frequently to calculate (in minutes)"
+        android:inputType="numberDecimal" />
 </PreferenceScreen>

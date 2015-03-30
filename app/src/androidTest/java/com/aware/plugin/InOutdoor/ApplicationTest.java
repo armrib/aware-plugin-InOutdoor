@@ -1,4 +1,4 @@
-package com.aware.plugin.InOutdoor;
+package com.aware.plugin.inoutdoor;
 
 import android.app.Application;
 import android.test.ApplicationTestCase;

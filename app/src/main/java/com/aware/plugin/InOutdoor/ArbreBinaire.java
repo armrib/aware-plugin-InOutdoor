@@ -1,15 +1,17 @@
-package com.aware.plugin.InOutdoor;
+package com.aware.plugin.inoutdoor;
+
+import android.util.Log;
 
 /**
  * Created by Armand on 26/02/2015.
  */
 public class ArbreBinaire {
-    private static Singleton instance = Singleton.getInstance();
-    private boolean decision;
+    private double decision;
     private int valeur;
-    private ArbreBinaire previous, gauche, droite;
+    private ArbreBinaire gauche, droite;
+    private static double confidence;
 
-    public ArbreBinaire(int obj, boolean decision, ArbreBinaire g, ArbreBinaire d) {
+    public ArbreBinaire(int obj, double decision, ArbreBinaire g, ArbreBinaire d) {
         this.valeur = obj;
         this.decision = decision;
         this.gauche = g;
@@ -18,97 +20,222 @@ public class ArbreBinaire {
 
     public ArbreBinaire() {
         this.setValeur(0);
+        this.setDecision(2);
         this.setGauche(null);
         this.setDroite(null);
     }
 
-    public static boolean deapthSearch(ArbreBinaire a) {
-        boolean i;
+    public static double[] deapthSearch(InOutDoor inOutDoor,ArbreBinaire a) {
+        double[] i = {0,0};
+        double[] res = new double[2];
+        Log.d("test", "deapthSearch node recherche : " + a.valeur);
         if (a.valeur != 0) {
-            switch (a.valeur) {
-                case 1:
-                    i = instance.getInOut().getBattery();
-                    break;
-                case 2:
-                    i = instance.getInOut().getBarometer();
-                    break;
-                case 3:
-                    i = instance.getInOut().getLinear();
-                    break;
-                case 4:
-                    i = instance.getInOut().getAccelerometer();
-                    break;
-                case 5:
-                    i = instance.getInOut().getMagnetic();
-                    break;
-                case 6:
-                    i = instance.getInOut().getGravity();
-                    break;
-                case 7:
-                    i = instance.getInOut().getWifi();
-                    break;
-                case 8:
-                    i = instance.getInOut().getLocation();
-                    break;
-                case 9:
-                    //i = instance.getInOut().getProxy();
-                    break;
-                case 10:
-                    i = instance.getInOut().getTemp();
-                    break;
-                case 11:
-                    i = instance.getInOut().getGyroscope();
-                    break;
-                case 12:
-                    // i = instance.getInOut().getLux();
-                    break;
-                case 13:
-                    //i = instance.getInOut().getGoogleRec();
-                    break;
-                case 14:
-                    //i = instance.getInOut().getAmbientNoise();
-                    break;
-                default:
-                    break;
+            if (a.valeur == 1) {
+                i = inOutDoor.getBattery();
+                confidence = i[1];
+            } else if (a.valeur == 2) {
+                i = inOutDoor.getAccelerometer();
+                confidence = confidence * i[1];
+            } else if (a.valeur == 3) {
+                i = inOutDoor.getWifi();
+                confidence = confidence * i[1];
+            } else if (a.valeur == 4) {
+                i = inOutDoor.getTemp();
+                confidence = confidence * i[1];
+            } else if (a.valeur == 5) {
+                i = inOutDoor.getLight();
+                confidence = confidence * i[1];
+            } else if (a.valeur == 6) {
+                i = inOutDoor.getScreen();
+                confidence = confidence * i[1];
+            } else if (a.valeur == 7){
+                i = inOutDoor.getMagnetometer();
+                confidence = confidence * i[1];
             }
-        } else
-            return a.decision;
-        if (i = false)
-            return deapthSearch(a.gauche);
-        else
-            return deapthSearch(a.droite);
+            else {
+                i = inOutDoor.getWifiP();
+                confidence = confidence * i[1];
+            }
+        } else {
+            Log.d("test", "deapthSearch node decision");
+            res[0] = a.decision;
+            res[1] = confidence;
+            return res;
+        }
+        if (i[0] == 1 && a.decision == 2) {
+            Log.d("test", "deapthSearch return a.gauche");
+            return deapthSearch(inOutDoor, a.gauche);
+        }
+        if (i[0] == 0 && a.decision == 2) {
+            Log.d("test", "deapthSearch return a.droite");
+            return deapthSearch(inOutDoor, a.droite);
+        } else return res;
     }
 
-    public static void createGraph() {
-        ArbreBinaire t = new ArbreBinaire();
-        ArbreBinaire f = new ArbreBinaire();
+    public static ArbreBinaire createGraph(Boolean magnetometer, Boolean light, Boolean temperature) {
+        ArbreBinaire in = new ArbreBinaire();
+        in.setDecision(1);
+        ArbreBinaire out = new ArbreBinaire();
+        out.setDecision(0);
+
         ArbreBinaire k0 = new ArbreBinaire();
         k0.setValeur(1);
+        ArbreBinaire k1 = new ArbreBinaire();
+        k1.setValeur(2);
         ArbreBinaire k2 = new ArbreBinaire();
-        k2.setValeur(3);
-        ArbreBinaire k12 = new ArbreBinaire();
-        k12.setValeur(13);
+        k2.setValeur(6);
+        ArbreBinaire k3 = new ArbreBinaire();
+        k3.setValeur(6);
+        ArbreBinaire k4 = new ArbreBinaire();
+        k4.setValeur(5);
         ArbreBinaire k5 = new ArbreBinaire();
-        k5.setValeur(6);
+        k5.setValeur(7);
+        ArbreBinaire k6 = new ArbreBinaire();
+        k6.setValeur(5);
+        ArbreBinaire k7 = new ArbreBinaire();
+        k7.setValeur(3);
         ArbreBinaire k8 = new ArbreBinaire();
-        k8.setValeur(9);
+        k8.setValeur(2);
+        ArbreBinaire k9 = new ArbreBinaire();
+        k9.setValeur(3);
+        ArbreBinaire k10 = new ArbreBinaire();
+        k10.setValeur(8);
+        ArbreBinaire k11 = new ArbreBinaire();
+        k11.setValeur(3);
+        ArbreBinaire k12 = new ArbreBinaire();
+        k12.setValeur(3);
+        ArbreBinaire k13 = new ArbreBinaire();
+        k13.setValeur(8);
+        ArbreBinaire k14 = new ArbreBinaire();
+        k14.setValeur(7);
+        ArbreBinaire k15 = new ArbreBinaire();
+        k15.setValeur(8);
+        ArbreBinaire k16 = new ArbreBinaire();
+        k16.setValeur(4);
 
-        k0.add(t, true);
-        k0.add(f, false);
-/*
-        k2.add(k5,false);
-        k2.add(t,true);
+    if (magnetometer && light && temperature) {
+        Log.d("test", "complet tree");
+        k0.setGauche(k1);
+        k0.setDroite(k2);
 
-        k12.add(k8,false);
-*/
-        Singleton.getInstance().setTree(k0);
+        k1.setGauche(k3);
+        k1.setDroite(in);
+
+        k2.setGauche(k4);
+        k2.setDroite(k5);
+
+        k3.setGauche(k6);
+        k3.setDroite(k7);
+
+        k4.setGauche(in);
+        k4.setDroite(out);
+
+        k5.setGauche(k8);
+        k5.setDroite(k9);
+
+        k6.setGauche(in);
+        k6.setDroite(out);
+
+        k7.setGauche(k10);
+        k7.setDroite(k14);
+
+        k8.setGauche(k11);
+        k8.setDroite(k12);
+
+        k9.setGauche(k13);
+        k9.setDroite(out);
+
+        k10.setGauche(in);
+        k10.setDroite(k14);
+
+        k11.setGauche(in);
+        k11.setDroite(out);
+
+        k12.setGauche(k15);
+        k12.setDroite(k16);
+
+        k13.setGauche(in);
+        k13.setDroite(out);
+
+        k14.setGauche(in);
+        k14.setDroite(out);
+
+        k15.setGauche(in);
+        k15.setDroite(in);
+
+        k16.setGauche(in);
+        k16.setDroite(out);
+    }else if(magnetometer && light){
+        Log.d("test", "no temp tree");
+        k0.setGauche(k1);
+        k0.setDroite(k2);
+
+        k1.setGauche(k3);
+        k1.setDroite(in);
+
+        k2.setGauche(k4);
+        k2.setDroite(k5);
+
+        k3.setGauche(k6);
+        k3.setDroite(k7);
+
+        k4.setGauche(in);
+        k4.setDroite(out);
+
+        k5.setGauche(k8);
+        k5.setDroite(k9);
+
+        k6.setGauche(in);
+        k6.setDroite(out);
+
+        k7.setGauche(k10);
+        k7.setDroite(k14);
+
+        k8.setGauche(k11);
+        k8.setDroite(k12);
+
+        k9.setGauche(k13);
+        k9.setDroite(out);
+
+        k10.setGauche(in);
+        k10.setDroite(k14);
+
+        k11.setGauche(in);
+        k11.setDroite(in);
+
+        k12.setGauche(k15);
+        k12.setDroite(in);
+
+        k13.setGauche(in);
+        k13.setDroite(out);
+
+        k14.setGauche(in);
+        k14.setDroite(out);
+
+        k15.setGauche(in);
+        k15.setDroite(in);
+    }else{
+        Log.d("test", "reduced tree");
+        k0.setGauche(k1);
+        k0.setDroite(k8);
+
+        k1.setGauche(k11);
+        k1.setDroite(in);
+
+        k8.setGauche(k11);
+        k8.setDroite(k11);
+
+        k11.setGauche(in);
+        k11.setDroite(out);
+    }
+        return k0;
     }
 
-    public boolean isDecision() {
+    public double isDecision() {
         return decision;
     }
 
-    public void setDecision(boolean decision) {
+    public void setDecision(double decision) {
         this.decision = decision;
     }
 
@@ -134,12 +261,5 @@ public class ArbreBinaire {
 
     public void setDroite(ArbreBinaire droite) {
         this.droite = droite;
-    }
-
-    public void add(ArbreBinaire a, boolean b) {
-        if (b)
-            this.gauche = a;
-        else
-            this.droite = a;
     }
 }
